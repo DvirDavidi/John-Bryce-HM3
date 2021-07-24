@@ -1,85 +1,90 @@
+const BASIC = "basic";
+const SUB_ADMIN = "sub_admin";
+const ADMIN = "admin";
+const ERROR_STATUS_CODE_USER_NOT_ALLOWED = 1000;
+const ERROR_STATUS_CODE_USER_DOES_NOT_EXIST = 200;
+
+// New instances for a few OperationNotAllowedError.
+const user1 = new User('Dvir', ADMIN);
+doAdminOperation(user1);
+console.log('\n');
+
+const user2 = new User('Asia', SUB_ADMIN);
+doAdminOperation(user2);
+console.log('\n');
+
+const user3 = new User('Ben', BASIC);
+doAdminOperation(user3);
+console.log('\n');
+
+const user4 = new User('Zion', "1213");
+doAdminOperation(user4);
+console.log('\n');
+
+
+// Return indication on the success of the operation.
 function adminOperation() {
-    console.log("admin wuz here");
+    console.log("admin wuz here.");
     return true;
 }
 
+// A constructor for defining new OperationNotAllowedError.
 function OperationNotAllowedError(username, errorCode, role) {
     this.username = username;
     this.errorCode = parseInt(errorCode);
     this.role = role;
 }
 
-// implement OperationNotAllowedError with the following fields: username, errorCode, role
-
-const BASIC = "basic";
-const SUB_ADMIN = "sub_admin";
-const ADMIN = "admin";
-
+// A constructor for defining new User.
 function User(username, role) {
     this.username = username;
     this.role = role;
 }
 
-const ERROR_STATUS_CODE_USER_NOT_ALLOWED = 1000;
-const ERROR_STATUS_CODE_USER_DOES_NOT_EXIST = 200;
-
-function checkIfUserExist(user) {
-    return (user.role === BASIC || user.role === SUB_ADMIN || user.role === ADMIN);
-}
-
-// implement the following function
-// check wether or not the user is allowed to perform the op
-// if not, throw an appropriate exception/error (specific type)
-// if allowed, invoke adminOperation and return indication on the success of the operation
-// print the result
-// always print that an operation was attempted and wether is was successful or not.
+// Checking wether or not the user is allowed to perform the op
+// and print the result.
 function doAdminOperation(user) {
-    let ifSuccess;
-
     try {
-        if (checkIfUserExist(user)) {
+        switch (user.role) {
+            case BASIC:
+                throw new OperationNotAllowedError(
+                    user.username,
+                    ERROR_STATUS_CODE_USER_NOT_ALLOWED,
+                    BASIC
+                );
 
-            switch (user.role) {
-                case BASIC:
-                    throw new OperationNotAllowedError(
-                        user.username,
-                        ERROR_STATUS_CODE_USER_NOT_ALLOWED,
-                        BASIC
-                    );
-                case SUB_ADMIN:
-                    throw new OperationNotAllowedError(
-                        user.username,
-                        ERROR_STATUS_CODE_USER_NOT_ALLOWED,
-                        SUB_ADMIN
-                    );
-                default:
-                    ifSuccess = adminOperation();
-                    break;
-            }
-        } else {
-            throw new OperationNotAllowedError(
-                user.username,
-                ERROR_STATUS_CODE_USER_DOES_NOT_EXIST,
-                user.role
-            );
+            case SUB_ADMIN:
+                throw new OperationNotAllowedError(
+                    user.username,
+                    ERROR_STATUS_CODE_USER_NOT_ALLOWED,
+                    SUB_ADMIN
+                );
+
+            case ADMIN:
+                let returnValue = adminOperation();
+                console.log('Done.');
+                return returnValue;
+
+            default:
+                throw new OperationNotAllowedError(
+                    user.username,
+                    ERROR_STATUS_CODE_USER_DOES_NOT_EXIST,
+                    user.role
+                );
         }
-
     } catch (myException) {
         switch (myException.errorCode) {
             case ERROR_STATUS_CODE_USER_NOT_ALLOWED:
-                console.log(myException, "User is not allowed");
+                console.log(myException, 'User is not allowed.');
                 break;
             case ERROR_STATUS_CODE_USER_DOES_NOT_EXIST:
-                console.log(myException, "User is not exists");
+                console.log(myException, 'User does not exists.');
                 break;
             default:
-                console.log(myException, "Invalid fields");
+                console.log(myException, 'Invalid fields.');
                 break;
         }
-    } finally {
-        (ifSuccess) ? console.log("Done") : console.log("Try with Admin user");
+        console.log("The operation failed. please try with admin user.");
     }
 }
 
-const user1 = new User("Dvir", "@");
-doAdminOperation(user1);

@@ -75,13 +75,13 @@ function doAdminOperation(user) {
     } catch (myException) {
         switch (myException.errorCode) {
             case ERROR_STATUS_CODE_USER_NOT_ALLOWED:
-                console.log(myException, 'User is not allowed.');
+                console.log(`${myException.role} user is not allowed.`);
                 break;
             case ERROR_STATUS_CODE_USER_DOES_NOT_EXIST:
-                console.log(myException, 'User does not exists.');
+                console.log(`${myException.role} user is not exists.`);
                 break;
             default:
-                console.log(myException, 'Invalid fields.');
+                console.log('Invalid fields.');
                 break;
         }
         console.log("The operation failed. please try with admin user.");
